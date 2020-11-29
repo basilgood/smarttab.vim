@@ -1,7 +1,7 @@
 function! SmartIndent(to)
 	let line = getline('.')
 	let tabs = matchstr(line, '^\t*')
-	if(line =~ '^\t* \+')
+	if(line =~? '^\t* \+')
 		" Continue smart-indenting
 		let nspaces = strlen(matchstr(line, '^\t* \+')) - strlen(tabs)
 	else
@@ -12,9 +12,9 @@ function! SmartIndent(to)
 		endfor
 		if(nspaces == -1) | return "\<CR>" | endif
 	endif
-	let spaces = ""
+	let spaces = ''
 	for space in range(nspaces)
-		let spaces = spaces . " "
+		let spaces = spaces . ' '
 	endfor
 	return "\<CR>\<C-W>".tabs.spaces
 endfunction
@@ -45,19 +45,21 @@ endfunction
 
 function! SmartTab()
 	let before = strpart(getline('.'), 0, col('.')-1)
-	if before =~ '^\t*$' | return "	" | endif
-	let sts=exists("b:insidetabs")?(b:insidetabs):((&sts==0)?&sw:&sts)
+	if before =~? '^\t*$' | return '	' | endif
+	let sts=exists('b:insidetabs')?(b:insidetabs):((&softtabstop==0)?&shiftwidth:&softtabstop)
 	let sp=(virtcol('.') % sts)
 	if sp==0 | let sp=sts | endif
-	return strpart("                                     ",0,1+sts-sp)
+	return strpart('                                     ',0,1+sts-sp)
 endfunction
 
 function! SmartDelete()
 	return "\<BS>"
 endfunction
 
-autocmd BufEnter *.c,*.cpp inoremap <CR> <C-R>=CSmartIndent()<CR>
-autocmd BufEnter *.py inoremap <CR> <C-R>=PySmartIndent()<CR>
-inoremap <S-TAB> <TAB>
-inoremap <TAB> <C-R>=SmartTab()<CR>
-inoremap <BS> <C-R>=SmartDelete()<CR>
+augroup file_types
+	au!
+	autocmd BufEnter *.c,*.cpp inoremap <CR> <C-R>=CSmartIndent()<CR>
+	autocmd BufEnter *.py inoremap <CR> <C-R>=PySmartIndent()<CR>
+augroup END
+
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<C-R>=SmartTab()<CR>"
