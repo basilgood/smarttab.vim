@@ -7,4 +7,4 @@ function! SmartTab()
   return strpart('                  ',0,1+l:sts-l:sp)
 endfunction
 
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<C-R>=SmartTab()<CR>"
+inoremap <expr><silent> <Tab> pumvisible() ? "\<C-n>" : "\<C-R>=SmartTab()<CR>"
